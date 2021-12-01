@@ -13,7 +13,7 @@ public class Player : MonoBehaviour
     public float jumpVelocity = 20;
     public float maxVelocity = 100;
     public bool isGrounded = false;
-
+    public bool isDashing = false;
     public bool isHoldingJump = false;
     public float MaxHoldJumpTime = 0.4f;
     public float maxMaxHoldJumpTime = 0.4f;
@@ -22,11 +22,16 @@ public class Player : MonoBehaviour
     public float jumpGroundThreshold = 1;
 
     public bool isDead = false;
+    private Animator anim;
+    private AudioSource au;
+    public AudioClip dashClip;
+    public AudioClip crackClip;
 
     
     void Start()
     {
-        
+        anim = GetComponent<Animator>();
+        au = GetComponent<AudioSource>();
     }
 
     
@@ -49,11 +54,46 @@ public class Player : MonoBehaviour
         {
             isHoldingJump = false;
         }
+
+        if(Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            isDashing = true;
+            anim.SetBool("isDash",true);
+            au.clip = dashClip;
+            au.Play();
+            
+        }
+        if(Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            isDashing = false;
+            velocity.x *= 0.4f;
+            anim.SetBool("isDash",false);
+        }
+
+        
     }
 
     private void FixedUpdate()
     {
         Vector2 pos = transform.position;
+
+        float velocityRatio = velocity.x /maxVelocity;
+            acceleration = maxAcceleration * (0.5f - velocityRatio);
+            MaxHoldJumpTime = maxMaxHoldJumpTime * velocityRatio;
+
+            if(isDashing){
+                velocity.x += acceleration * 0.9f;
+                
+            }
+
+            else{
+            velocity.x += acceleration * Time.fixedDeltaTime;
+            }
+            
+            if(velocity.x >= maxVelocity)
+            {
+                velocity.x = maxVelocity;
+            }
 
         if(isDead)
         {
@@ -106,7 +146,8 @@ public class Player : MonoBehaviour
             Debug.DrawRay(rayOrigin, rayDirection * rayDistance, Color.red);
 
             Vector2 wallOrigin = new Vector2(pos.x, pos.y);
-            RaycastHit2D wallHit = Physics2D.Raycast(wallOrigin, Vector2.right, velocity.x * Time.fixedDeltaTime);
+            Vector2 wallDir = Vector2.right;
+            RaycastHit2D wallHit = Physics2D.Raycast(wallOrigin, wallDir, velocity.x * Time.fixedDeltaTime);
             if(wallHit.collider != null)
             {
                 Ground ground = wallHit.collider.GetComponent<Ground>();
@@ -127,18 +168,10 @@ public class Player : MonoBehaviour
 
         if(isGrounded)
         {
-            float velocityRatio = velocity.x /maxVelocity;
-            acceleration = maxAcceleration * (0.5f - velocityRatio);
-            MaxHoldJumpTime = maxMaxHoldJumpTime * velocityRatio;
-
-            velocity.x += acceleration * Time.fixedDeltaTime;
             
-            if(velocity.x >= maxVelocity)
-            {
-                velocity.x = maxVelocity;
-            }
+            
 
-            Vector2 rayOrigin = new Vector2(pos.x - 0.3f, pos.y);
+            Vector2 rayOrigin = new Vector2(pos.x - 0.2f, pos.y);
             Vector2 rayDirection = Vector2.up;
             float rayDistance = velocity.y * Time.fixedDeltaTime;
             RaycastHit2D hit2D = Physics2D.Raycast(rayOrigin, rayDirection, rayDistance);
@@ -179,6 +212,10 @@ public class Player : MonoBehaviour
     void hitObstacle(Obstacle obstacle)
     {
         Destroy(obstacle.gameObject);
-        velocity.x *= 0.7f;
+        au.clip = crackClip;
+        au.Play();
+        velocity.x *= 0.8f;
     }
+
+    
 }

@@ -20,9 +20,11 @@ public class UIcontroller : MonoBehaviour
         distanceText = GameObject.Find("DistanceText").GetComponent<Text>();
         
         finalDistanceText = GameObject.Find("FinalDistance").GetComponent<Text>();
+        
         results = GameObject.Find("Results");
         results.SetActive(false);
         
+
     }
 
 
@@ -36,12 +38,18 @@ public class UIcontroller : MonoBehaviour
     {
         int distance = Mathf.FloorToInt(player.distance);
        distanceText.text =  distance + " m";
-
+        if (distance>PlayerPrefs.GetInt("HighDistance",0))
+        {
+           PlayerPrefs.SetInt("HighDistance", distance);
+        }
+        
+       
        if(player.isDead)
        {
            results.SetActive(true);
            finalDistanceText.text = distance + " m";
        }
+      
     }
 
     public void Quit()

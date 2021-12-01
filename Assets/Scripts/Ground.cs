@@ -41,7 +41,7 @@ public class Ground : MonoBehaviour
         Vector2 pos = transform.position;
         pos.x -= player.velocity.x * Time.fixedDeltaTime;
         
-        groundRight = transform.position.x + (collider.size.x / 1.2f);
+        groundRight = transform.position.x + (collider.size.x / 1.1f);
 
         if(groundRight < 0 )
         {
@@ -74,7 +74,7 @@ public class Ground : MonoBehaviour
         float t = player.jumpVelocity / -player.gravity;
         float h2 = player.jumpVelocity * t + (0.5f * (player.gravity*(t*t)));
         float maxJumpHeight = h1 + h2;
-        float maxY = maxJumpHeight * 0.7f;
+        float maxY = maxJumpHeight * 1.2f;
         maxY += groundHeight;
         float minY = 0.9f;
         float actualY = Random.Range(minY, maxY);
@@ -87,7 +87,7 @@ public class Ground : MonoBehaviour
         float t2 = Mathf.Sqrt((2.0f * (maxY - actualY)) / -player.gravity);
         float totalTime = t1 + t2;
         float maxX = totalTime * player.velocity.x;
-        maxX *= 0.7f;
+        maxX *= 0.3f;
         maxX += groundRight;
         float minX = screenRight + 5;
         float actualX = Random.Range(minX , maxX);
@@ -99,7 +99,7 @@ public class Ground : MonoBehaviour
         Ground goGround = go.GetComponent<Ground>();
         goGround.groundHeight = go.transform.position.y + (goCollider.size.y / 1.2f);
 
-        int obstacleNum = Random.Range(0, 2);
+        int obstacleNum = Random.Range(0, 3);
         for(int i=0; i<obstacleNum; i++)
         {
             GameObject wood = Instantiate(woodTemplate.gameObject);
